@@ -16,7 +16,7 @@ app.get(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const characters = await Character.find(); // Fetch all characters from DB
-      console.log("Fetched characters:", characters);
+      //console.log("Fetched characters:", characters);
       res.json(characters); // Send the characters as JSON response
     } catch (error) {
       console.error("Error fetching characters:", error);

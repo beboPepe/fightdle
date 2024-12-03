@@ -11,7 +11,7 @@ const GuessingGame: React.FC = () => {
   const [guess, setGuess] = useState<string>("");
   const [suggestions, setSuggestions] = useState<CharacterType[]>([]);
 
-  // 1. Fetch characters from the backend when the component mounts
+  //Fetch characters from the backend when the component mounts
   useEffect(() => {
     const fetchCharacters = async () => {
       try {
@@ -54,7 +54,9 @@ const GuessingGame: React.FC = () => {
 
   // 4. Handle guesses
   const handleGuess = (guessedName: string) => {
-    const guessedCharacter = characters.find((c) => c.name === guessedName);
+    const guessedCharacter = characters.find(
+      (c) => c.name.toLowerCase() === guessedName.trim().toLowerCase()
+    );
     if (!guessedCharacter) {
       setFeedback(["Character not found. Try again!"]);
       return;
@@ -91,6 +93,7 @@ const GuessingGame: React.FC = () => {
           winningCharacter.archetype.includes(archetype)
         );
 
+      //Checking completeness of match
       if (exactArchetypeMatch) {
         feedbackList.push("Archetype fully matches!");
       } else if (partialArchetypeMatch) {
@@ -121,26 +124,45 @@ const GuessingGame: React.FC = () => {
   };
   return (
     <div>
+      {/* Input field for the user to type their guess */}
       <input
         type="text"
-        value={guess}
+        value={guess} // Controlled input, bound to the `guess` state
         onChange={(e) => {
-          setGuess(e.target.value);
-          handleInputChange(e);
+          setGuess(e.target.value); // Update the `guess` state with the user's input
+          handleInputChange(e); // Trigger a handler for additional processing (e.g., suggestions)
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleGuess(guess); // Trigger the guess submission on pressing Enter
+          }
         }}
         placeholder="Enter character name"
         className="your-input-class"
       />
+      {/* Button to submit the current guess */}
       <button onClick={() => handleGuess(guess)}>Submit Guess</button>
+
+      {/* Feedback section - displays results or hints for the user's guess */}
       <div>
         {feedback.map((line, index) => (
-          <p key={index}>{line}</p>
+          <p key={index}>{line}</p> // Render each feedback message
         ))}
       </div>
+
+      {/* Suggestion dropdown - appears if there are any suggestions */}
       {suggestions.length > 0 && (
         <ul className="absolute bg-white border rounded shadow mt-2">
           {suggestions.map((character) => (
-            <li key={character.name} className="p-2 hover:bg-gray-200">
+            <li
+              key={character.name} // Unique key for each suggestion (assuming `name` is unique)
+              onClick={() => {
+                setGuess(character.name); // Set the guess to the clicked suggestion
+                setSuggestions([]); //Clear suggestions
+                handleGuess(character.name); // Automatically submit
+              }}
+              className="p-2 hover:bg-gray-200"
+            >
               {character.name}
             </li>
           ))}
